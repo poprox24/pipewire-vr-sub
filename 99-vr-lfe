@@ -1,0 +1,87 @@
+# // Poprox24 2026
+# // WiVRN/ANY app routed to subwoofer
+
+context.modules = [
+  { name = libpipewire-module-filter-chain
+    args = {
+      node.description = "VR Sub EQ"
+      media.name       = "VR Sub EQ"
+
+      filter.graph = {
+        nodes = [
+
+          # --- MIXER ---
+          # Sums the stereo input (FL + FR) into a single mono signal.
+          # Gain 1 and Gain 2 are each set to 0.5 so the combined output
+          # stays at unity gain (0.5 + 0.5 = 1.0). Adjust if the sub is
+          # too quiet or clips.
+          { type = builtin
+            name = sum
+            label = mixer
+            control = { "Gain 1" = 0.5 "Gain 2" = 0.5 }
+          }
+
+          # --- PARAMETRIC EQ ---
+          # Shapes the mono signal before it hits the LFE (subwoofer) channel.
+          # All bands use bq_peaking (bell/peak) filters.
+          # Parameters:
+          #   freq  – center frequency in Hz
+          #   gain  – boost (+) or cut (-) in dB
+          #   q     – bandwidth; higher Q = narrower band
+          #
+          # Tune these bands to match your subwoofer's response curve.
+          { type = builtin
+            name = lfe_eq
+            label = param_eq
+            config = {
+              filters = [
+                { type = bq_peaking  freq = 40     gain = 0.95  q = 0.7  }  # Sub-bass body
+                { type = bq_peaking  freq = 65     gain = 2.7   q = 1.2  }  # Upper sub-bass boost
+                { type = bq_peaking  freq = 103.8  gain = 1.1   q = 1.15 }  # Low-mid presence
+                { type = bq_peaking  freq = 350    gain = 0.67  q = 2.0  }  # Mud reduction
+                { type = bq_peaking  freq = 700    gain = 1.5   q = 1.6  }  # Upper crossover region
+              ]
+            }
+          }
+
+        ]
+
+        # --- ROUTING ---
+        # Connects the mixer's mono output into the EQ's first input channel.
+        links = [
+          { output = "sum:Out"  input = "lfe_eq:In 1" }
+        ]
+
+        # The two stereo inputs feed into the mixer's two channels.
+        inputs  = [ "sum:In 1"    "sum:In 2" ]
+
+        # The EQ's single output is exposed as this module's output.
+        outputs = [ "lfe_eq:Out 1" ]
+      }
+
+      # --- CAPTURE (INPUT) SIDE ---
+      # Creates a virtual stereo audio sink that other apps can route audio into.
+      # Set your application or game to output audio to "vr_sub_eq_in".
+      capture.props = {
+        node.name      = "vr_sub_eq_in"
+        media.class    = "Audio/Sink"
+        audio.channels = 2
+        audio.position  = [ FL FR ]
+      }
+
+      # --- PLAYBACK (OUTPUT) SIDE ---
+      # Outputs the processed mono signal to the LFE channel of your audio device.
+      # node.passive     = true  → this node won't keep the audio graph alive on its own
+      # node.autoconnect = false → won't auto-connect to any sink; wire it manually
+      #                            (e.g. via qpwgraph or pw-link) to your subwoofer output
+      playback.props = {
+        node.name        = "vr_sub_eq_out"
+        audio.channels   = 1
+        audio.position   = [ LFE ]
+        node.passive     = true
+        node.autoconnect = false
+      }
+
+    }
+  }
+]
