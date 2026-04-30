@@ -41,7 +41,9 @@ cp vr-sub-eq.conf ~/.config/pipewire/pipewire.conf.d/
 systemctl --user restart pipewire pipewire-pulse
 ```
 
-3. Wire up the input/output manually - the node won't auto-connect by design, because many apps create the sink on startup(buggy with Pipewire). Use a patchbay tool like **qpwgraph** or the `pw-link` CLI to connect `vr_sub_eq_in` to Pipewire and `vr_sub_eq_out` to your subwoofer's LFE channel.
+3. Wire up the input/output manually - the node won't auto-connect by design, because many apps create the sink on program startup(buggy with Pipewire). Use a patchbay tool like **qpwgraph** or the `pw-link` CLI to connect `vr_sub_eq_in` to Pipewire and `vr_sub_eq_out` to your subwoofer's LFE channel.  
+  (Note, this needs to be ran every time you restart your computert, for programs such as WiVRn I recommend adding it as an autolaunch script with a sleep/delay of 3 seconds)
+
 
 ---
 
