@@ -100,7 +100,7 @@ pw-link --output
 
 pw-link wivrn.sink:monitor_FL vr_sub_eq_in:playback_FL
 pw-link wivrn.sink:monitor_FR vr_sub_eq_in:playback_FR
-pw-link vr_sub_eq_out:<port> <your-lfe-sink>:<port>
+pw-link vr_sub_eq_out:output_LFE <your-lfe-sink>:<port>
 ```
 You may replace wivrn.sink with your chosen app.
 
