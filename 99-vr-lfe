@@ -85,3 +85,8 @@ context.modules = [
     }
   }
 ]
+
+# Run afterwards (example, change to your system sinks using `pw-link -o`)
+# pw-link wivrn.sink:monitor_FL vr_sub_eq_in:playback_FL
+# pw-link wivrn.sink:monitor_FR vr_sub_eq_in:playback_FR
+# pw-link vr_sub_eq_out:output_LFE alsa_output.pci-0000_10_00.6.analog-surround-51:playback_LFE
